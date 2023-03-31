@@ -13,6 +13,6 @@ jobs:
     - name: Comment Checkout
       uses: NejcZdovc/comment-pr@v2
       with:
-        file: "woven_omment.md"
+        file: "woven_comment.md"
       env:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}

@@ -1,0 +1,18 @@
+name: Woven
+on:
+  pull_request:
+    types: [opened]
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Comment Checkout
+      uses: NejcZdovc/comment-pr@v2
+      with:
+        file: "woven_omment.md"
+      env:
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}

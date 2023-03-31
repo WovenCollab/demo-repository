@@ -15,3 +15,5 @@ jobs:
         file: "woven_comment.md"
       env:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+    - name: Mock failure
+      run: exit 1

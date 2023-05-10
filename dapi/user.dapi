@@ -40,13 +40,6 @@ user:
             the billing address
         pii: False
 
-    - phone:
-        type: string
-        nullable: False
-        desc: >
-            the user's phone number
-        pii: False
-
     - joined_at:
         type: datetime
         nullable: False

@@ -1,0 +1,59 @@
+cart:
+    owner: engineering/ecommerce
+    desc: >
+        The cart with items that the buyer has prepared to checkout
+    domain: ecommerce
+    source: mysql
+    destinations:
+    - snowflake
+
+    columns:
+    - cart_id:
+        type: integer
+        primary_key: True
+        nullable: False
+        desc: >
+            primary key system identifier
+        pii: False
+
+    - user_id:
+        type: integer
+        nullable: False
+        desc: >
+            the buyer that the cart belongs to
+        pii: False
+
+    - item_sku:
+        type: string
+        nullable: False
+        desc: >
+            the primary email
+        pii: False
+
+    - address:
+        type: integer
+        nullable: True
+        desc: >
+            the shipping address
+        pii: True
+
+    - amount:
+        type: integer
+        nullable: False
+        desc: >
+            total amount of the cart with taxes and shipping
+        pii: False
+
+    - purchase_number:
+        type: integer
+        nullable: True
+        desc: >
+            has a purchase number when the cart has been purchased, otherwise the cart is pending
+        pii: False
+
+    - created:
+        type: datetime
+        nullable: False
+        desc: >
+            cart creation time
+        pii: False

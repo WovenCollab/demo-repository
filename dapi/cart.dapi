@@ -3,7 +3,7 @@ cart:
     desc: >
         The cart with items that the buyer has prepared to checkout
     domain: ecommerce
-    source: mysql
+    source: dynamodb
     destinations:
     - snowflake
 

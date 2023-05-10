@@ -12,7 +12,7 @@ class Cart(Base):
         owner="engineering/ecommerce",
         desc="The cart with items that the buyer has prepared to checkout",
         domain="ecommerce",
-        source=STORAGE.MYSQL,
+        source=STORAGE.DYNAMODB,
         destinations=[STORAGE.SNOWFLAKE],
     )
 

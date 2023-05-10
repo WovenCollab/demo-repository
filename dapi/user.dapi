@@ -1,0 +1,53 @@
+user:
+    owner: engineering/membership
+    desc: >
+        Source of truth of buyers/consumers that signed up with Acme
+    domain: buyer_growth
+    source: mysql
+    destinations:
+    - snowflake
+    - iceberg
+
+    columns:
+    - id:
+        type: integer
+        primary_key: True
+        nullable: False
+        desc: >
+            primary key system identifier
+        pii: False
+
+    - name:
+        type: string
+        nullable: False
+        desc: >
+            the user's full name
+        pii: False
+
+    - email:
+        type: string
+        nullable: False
+        desc: >
+            the primary email
+        pii: False
+
+    - address:
+        type: string
+        nullable: False
+        desc: >
+            the billing address
+        pii: False
+
+    - phone:
+        type: string
+        nullable: False
+        desc: >
+            the user's phone number
+        pii: False
+
+    - joined_at:
+        type: datetime
+        nullable: False
+        desc: >
+            time when they joined Acme
+        pii: False

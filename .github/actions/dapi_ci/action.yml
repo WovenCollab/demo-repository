@@ -1,0 +1,87 @@
+name: 'DAPI CI'
+description: 'Validates and Registers DAPI or DATA APIs, made by Woven'
+inputs:
+  dapi-server-hostname:  # id of input
+    description: 'Hostname of the DAPI server'
+    required: True
+  register-on-merge-to-mainline:  # id of input
+    description: 'Whether DAPI files must be registered upon merge to mainline'
+    type: boolean
+    required: True
+    default: False
+  mainline-branch-name:  # id of input
+    description: 'Name of the mainline branch'
+    required: True
+outputs:
+  random-number:
+    description: "Random number"
+    value: ${{ steps.random-number-generator.outputs.random-number }}
+runs:
+  using: "composite"
+  steps:
+    - id: random-number-generator
+      run: echo "random-number=$(echo $RANDOM)" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - run: echo Hello ${{ inputs.mainline-branch-name }}.
+      shell: bash
+
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
+      shell: bash
+
+    - name: Get content from all DAPI files
+      id: get-all-dapi-files
+      run: |
+        dapi_files=$(find . -name '*.dapi')
+        echo "::set-output name=dapi_files::${dapi_files[*]}"
+        echo "::set-output name=content_list::${content_list[*]}"
+
+    - name: Get content from changed DAPI files
+      id: get-changed-dapi-files-content
+      run: |
+        dapi_files=()
+        if [[ -n "${{ github.event.pull_request }}" ]]; then
+          dapi_files=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- "*.dapi")
+        else
+          dapi_files=$(git diff --name-only ${{ github.event.push.before }} ${{ github.event.push.after }} -- "*.dapi")
+        fi
+        echo "::set-output name=dapi_files::${dapi_files[*]}"
+
+    - name: Validate DAPI Files
+      id: validate_dapi
+      uses: actions/github-script@v6
+      with:
+        github-token: "TEMP"
+        script: |
+          const fs = require('fs');
+          const dapiFiles = "${{ steps.get-all-dapi-files.outputs.dapi_files }}".split(",").filter(element => element);;
+          const dapiContentList = [];
+          for (const file of dapiFiles) {
+            const content = fs.readFileSync(file, 'utf8');
+            dapiContentList.push(content);
+          }
+          if (dapiContentList.length === 0) {
+            console.log('No DAPI files to validate');
+            process.exit(0);
+          }
+          console.log('Validating DAPI files...');
+          const requestOptions = {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ dapis: dapiContentList })
+            };
+          console.log(JSON.stringify(requestOptions))
+            const response = await fetch('${{ inputs.dapi-server-hostname }}/v1/registry/validate', requestOptions);
+            const message = await response.text()
+            if (response.status !== 200) {
+              console.log(`DAPI Validation failed:`);
+              console.log(JSON.stringify(message));
+              process.exit(1);
+            }
+          console.log('Validation successful.');
+
+    - run: echo Hello ${{ inputs.mainline-branch-name }}.
+      shell: bash

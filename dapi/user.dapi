@@ -9,7 +9,7 @@ desc: >
   The source of truth user data model
 
 owner:
-  team: engineering/membership
+  name: engineering/membership
   domain: membership
   email: manager@team.com
 

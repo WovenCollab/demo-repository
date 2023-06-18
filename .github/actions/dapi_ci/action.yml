@@ -12,115 +12,17 @@ inputs:
   mainline-branch-name:  # id of input
     description: 'Name of the mainline branch'
     required: True
-outputs:
-  random-number:
-    description: "Random number"
-    value: ${{ steps.random-number-generator.outputs.random-number }}
 runs:
   using: "composite"
   steps:
-    - id: random-number-generator
-      run: echo "random-number=$(echo $RANDOM)" >> $GITHUB_OUTPUT
-      shell: bash
-
-    - run: echo Hello ${{ inputs.mainline-branch-name }}.
-      shell: bash
-
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
-      shell: bash
-
-    - name: Get content from all DAPI files
-      id: get-all-dapi-files
-      run: |
-        dapi_files=$(find . -name '*.dapi')
-        echo "::set-output name=dapi_files::${dapi_files[*]}"
-
-    - name: Get content from changed DAPI files
-      id: get-changed-dapi-files
-      run: |
-        dapi_files=()
-        if [[ -n "${{ github.event.pull_request }}" ]]; then
-          dapi_files=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- "*.dapi")
-        else
-          dapi_files=$(git diff --name-only ${{ github.event.push.before }} ${{ github.event.push.after }} -- "*.dapi")
-        fi
-        echo "::set-output name=dapi_files::${dapi_files[*]}"
-
-    - name: Validate DAPI Files
-      id: validate_dapi
+    - name: DAPI check
+      id: dapi-check
       uses: actions/github-script@v6
       with:
-        github-token: "TEMP"
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         script: |
-          const fs = require('fs');
-          const dapiFiles = "${{ steps.get-all-dapi-files.outputs.dapi_files }}".split(",").filter(element => element);;
-           if (dapiFiles.length === 0) {
-            console.log('No DAPI files to validate');
-            process.exit(0);
-          }
-          const dapiContentList = [];
-          for (const file of dapiFiles) {
-            const content = fs.readFileSync(file, 'utf8');
-            dapiContentList.push(content);
-          }
-
-          console.log('Validating DAPI files...');
-          const requestOptions = {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ dapis: dapiContentList })
-            };
-            const response = await fetch('${{ inputs.dapi-server-hostname }}/v1/registry/validate', requestOptions);
-            const message = await response.text()
-            if (response.status !== 200) {
-              console.log(`DAPI Validation failed:`);
-              console.log(JSON.stringify(message));
-              process.exit(1);
-            }
-          console.log('Validation successful.');
-
-    - name: Register DAPI Files
-      id: register_dapi
-      uses: actions/github-script@v6
-      with:
-        github-token: "TEMP"
-        script: |
-          if (core.getBooleanInput('register-on-merge-to-mainline') === false || context.eventName != 'push' || context.payload.push.ref != `refs/heads/${core.getInput('mainline-branch-name')}`) {
-            console.log('Registration skipped');
-            process.exit(0);
-          }
-          const fs = require('fs');
-          const dapiFiles = "${{ steps.get-all-dapi-files.outputs.dapi_files }}".split(",").filter(element => element);;
-           if (dapiFiles.length === 0) {
-            console.log('No DAPI files to register');
-            process.exit(0);
-          }
-          const dapiContentList = [];
-          for (const file of dapiFiles) {
-            const content = fs.readFileSync(file, 'utf8');
-            dapiContentList.push(content);
-          }
-
-          console.log('Registering DAPI files...');
-          const requestOptions = {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                dapis: dapiContentList,
-                commit_hash: context.sha,
-              })
-            };
-            const response = await fetch('${{ inputs.dapi-server-hostname }}/v1/registry/register', requestOptions);
-            const message = await response.text()
-            if (response.status !== 201) {
-              console.log(`DAPI Registration failed:`);
-              console.log(JSON.stringify(message));
-              process.exit(1);
-            }
-          console.log('Registration successful.');
-
-    - run: echo Hello ${{ inputs.mainline-branch-name }}.
-      shell: bash
+          const script = require('./.github/actions/dapi_ci/index.js');
+          console.log(await script({context, core, exec, fetch, glob}));

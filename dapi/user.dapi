@@ -35,6 +35,7 @@ columns:
         the user's full name
     pii: False
     public: True
+    primary_key: False
 
   email:
     type: string
@@ -43,6 +44,7 @@ columns:
         the primary email
     pii: False
     public: True
+    primary_key: False
 
   address:
     type: string
@@ -51,6 +53,7 @@ columns:
         the billing address
     pii: False
     public: True
+    primary_key: False
 
   joined_at:
     type: datetime
@@ -59,3 +62,4 @@ columns:
         time when they joined Acme
     pii: False
     public: True
+    primary_key: False

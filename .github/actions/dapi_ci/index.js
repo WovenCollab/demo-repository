@@ -127,6 +127,7 @@ const askDapiServer = async ({core, fetch, requestPath, dapiContentList, extraAr
     })
   };
 
+  console.log(`${core.getInput('dapi-server-hostname')}${requestPath}`);
   const response = await fetch(`${core.getInput('dapi-server-hostname')}${requestPath}`, requestOptions);
   const message = await response.json()
 

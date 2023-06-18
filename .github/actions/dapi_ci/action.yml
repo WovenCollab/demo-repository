@@ -22,7 +22,6 @@ runs:
       id: dapi-check
       uses: actions/github-script@v6
       with:
-        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         script: |
           const script = require('./.github/actions/dapi_ci/index.js');
           console.log(await script({context, core, exec, fetch, glob}));

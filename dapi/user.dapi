@@ -59,7 +59,7 @@ columns:
     type: datetime
     nullable: False
     desc: >
-        time when they joined Acme
+        time when they joined Acme company
     pii: False
     public: True
     primary_key: False

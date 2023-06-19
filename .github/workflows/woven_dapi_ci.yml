@@ -14,7 +14,7 @@ jobs:
       with:
         fetch-depth: 0
     - name: DAPI CI Action
-      uses:  wovencollab/dapi-check@097857ea200b5d8f421b1b014e15524d6851af6c
+      uses:  wovencollab/dapi-check@3c1f6f374d7f6b62349ba846413e143c707611e9
       with:
         dapi-server-hostname: "https://9xmk52u6t0.execute-api.us-east-1.amazonaws.com/dev/"
         mainline-branch-name: "main"

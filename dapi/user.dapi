@@ -50,7 +50,7 @@ columns:
     type: string
     nullable: False
     desc: >
-        the billing address
+        the billing address of the user
     pii: False
     public: True
     primary_key: False

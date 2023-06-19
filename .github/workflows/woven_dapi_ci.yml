@@ -12,7 +12,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: DAPI CI Action
-      uses:  wovencollab/dapi-check@18c9e17a59d6fd29b0c1deb9c00bf8df11fa08d9
+      uses:  wovencollab/dapi-check@a0f817d8a1d5659036e46700b45616b13d222afc
       with:
         dapi-server-hostname: "https://9xmk52u6t0.execute-api.us-east-1.amazonaws.com/dev/"
         mainline-branch-name: "main"

@@ -51,15 +51,6 @@ class User(Base):
         )
     )
 
-    phone = Column(
-        String,
-        nullable=False,
-        __dapi__=DAPI_META_COLUMN(
-            desc="the user's phone number",
-            pii=True,
-        )
-    )
-
     joined_at = Column(
         DateTime,
         nullable=False,

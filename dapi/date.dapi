@@ -2,7 +2,7 @@
 # dapi/date.dapi
 
 dapi_version: 1
-type: lookup
+type: entity
 urn: com.bigco.date
 desc: a lookup table for dates
 

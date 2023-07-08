@@ -2,7 +2,7 @@
 # dapi/item.dapi
 
 dapi_version: 1
-type: lookup
+type: entity
 urn: com.bigco.item
 desc: a lookup table for items for sale that includes details of that item that are relevant to the customer
 

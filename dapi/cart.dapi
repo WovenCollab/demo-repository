@@ -2,7 +2,7 @@
 # dapi/cart.dapi
 
 dapi_version: 1
-type: lookup
+type: entity
 urn: com.bigco.cart
 desc: a collection of items that a customer has purchased
 

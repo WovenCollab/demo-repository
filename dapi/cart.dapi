@@ -33,7 +33,7 @@ columns:
     public: True
 
   SS_QUANTITY:
-    type: date
+    type: integer
     primary_key: False
     nullable: False
     desc: the number of items that were purchased
@@ -41,7 +41,7 @@ columns:
     public: True
 
   SS_SALES_PRICE:
-    type: date
+    type: integer
     primary_key: False
     nullable: False
     desc: the price per item

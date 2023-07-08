@@ -1,0 +1,123 @@
+// Snowflake Worksheet: https://app.snowflake.com/lnkzxwm/ab67297/wSmE95vA8mp#query
+
+// Create a new database for the Woven demo data
+CREATE DATABASE IF NOT EXISTS WOVEN_DEMO;
+
+// Show all existing databases and schemas
+SHOW DATABASES;
+SHOW SCHEMAS;
+
+// Specify the dabase and schema to use
+USE DATABASE WOVEN_DEMO;
+USE SCHEMA SNOWFLAKE_SAMPLE_DATA.TPCDS_SF10TCL;
+
+// Drop all tables if they already exist
+-- DROP TABLE IF EXISTS CUSTOMERS;
+-- DROP TABLE IF EXISTS SALES;
+-- DROP TABLE IF EXISTS ITEMS;
+-- DROP TABLE IF EXISTS CARTS;
+
+// Create a table of 1000 unique customers
+CREATE TABLE CUSTOMERS AS (
+    SELECT
+        TOP 1000 C_CUSTOMER_SK
+    FROM
+        SNOWFLAKE_SAMPLE_DATA.TPCDS_SF10TCL.CUSTOMER
+    GROUP BY
+        C_CUSTOMER_SK
+)
+;
+-- SELECT COUNT(DISTINCT C_CUSTOMER_SK) FROM CUSTOMERS;
+
+// Create a table of all sales stemming from our list of customers
+CREATE TABLE SALES AS (
+    SELECT
+        SS_TICKET_NUMBER,
+        SS_CUSTOMER_SK,
+        SS_SOLD_DATE_SK,
+        SUM(SS_NET_PAID) AS SUM_SS_NET_PAID
+    FROM
+        SNOWFLAKE_SAMPLE_DATA.TPCDS_SF10TCL.STORE_SALES
+    WHERE
+        SS_CUSTOMER_SK IN (
+            SELECT
+                C_CUSTOMER_SK
+            FROM
+                CUSTOMERS
+        )
+    GROUP BY
+        SS_TICKET_NUMBER,
+        SS_CUSTOMER_SK,
+        SS_SOLD_DATE_SK
+)
+;
+-- SELECT COUNT(*) FROM SALES;
+-- SELECT SALES_CNT, COUNT(SS_CUSTOMER_SK) AS CUSTOMER_CNT FROM (SELECT SS_CUSTOMER_SK, COUNT(SS_TICKET_NUMBER) AS SALES_CNT FROM SALES GROUP BY SS_CUSTOMER_SK) GROUP BY SALES_CNT ORDER BY SALES_CNT;
+-- SELECT COUNT(DISTINCT SS_SOLD_DATE_SK) FROM SALES;
+
+// Create lookup table for dates
+CREATE TABLE DATE_LOOKUP AS (
+    SELECT
+        D_DATE_SK,
+        D_DATE
+    FROM
+        SNOWFLAKE_SAMPLE_DATA.TPCDS_SF10TCL.DATE_DIM
+    WHERE
+        D_DATE_SK IN (
+            SELECT
+                DISTINCT SS_SOLD_DATE_SK
+            FROM
+                SALES
+        )
+)
+;
+-- SELECT COUNT(*) FROM DATE_LOOKUP;
+-- SELECT D_DATE FROM DATE_LOOKUP ORDER BY D_DATE;
+-- SELECT MIN(D_DATE) AS MIN_DATE, MAX(D_DATE) AS MAX_DATE FROM DATE_LOOKUP;
+
+// Create a table of carts purchased in a given sale
+CREATE TABLE CARTS AS (
+    SELECT
+        SS_TICKET_NUMBER,
+        SS_ITEM_SK,
+        SS_QUANTITY,
+        SS_SALES_PRICE
+    FROM
+        SNOWFLAKE_SAMPLE_DATA.TPCDS_SF10TCL.STORE_SALES
+    WHERE
+        SS_TICKET_NUMBER IN (
+            SELECT
+                DISTINCT SS_TICKET_NUMBER
+            FROM
+                SALES
+        )
+)
+;
+-- SELECT COUNT(*) FROM CARTS;
+-- SELECT ITEM_CNT, COUNT(CARTS) FROM (SELECT SS_TICKET_NUMBER, COUNT(SS_ITEM_SK) AS ITEM_CNT FROM CARTS GROUP BY SS_TICKET_NUMBER) GROUP BY ITEM_CNT;
+
+// Create a item lookup table based on customer sales
+CREATE TABLE ITEM_LOOKUP AS (
+    SELECT
+        I_ITEM_SK,
+        I_CATEGORY_ID,
+        I_CATEGORY,
+        I_BRAND_ID,
+        I_BRAND,
+        I_PRODUCT_NAME,
+        I_SIZE,
+        I_COLOR,
+        I_ITEM_DESC
+    FROM
+        SNOWFLAKE_SAMPLE_DATA.TPCDS_SF10TCL.ITEM
+    WHERE
+        I_ITEM_SK IN (
+            SELECT
+                DISTINCT SS_ITEM_SK
+            FROM
+                CARTS
+        )
+)
+;
+-- SELECT COUNT(*) FROM ITEM_LOOKUP;
+-- SELECT I_CATEGORY, COUNT(I_ITEM_SK) AS ITEM_CNT FROM ITEM_LOOKUP GROUP BY I_CATEGORY;

@@ -1,0 +1,57 @@
+# dapi/promotion.dapi
+
+dapi_version: 1
+type: entity
+urn: com.bigco.promotion
+desc: promotional events that are run to market specific items and drive sales
+
+owner:
+  name: engineering/ecommerce
+  domain: ecommerce
+  email: manager@bigco.com
+
+destinations:
+- type: snowflake
+  object: woven_demo.public.promotion
+  urn: com.bigco.storage.snowflake_primary
+
+columns:
+  P_PROMO_SK:
+    type: integer
+    primary_key: True
+    nullable: False
+    desc: the unique identifier for the promotion event
+    pii: False
+    public: True
+
+  P_START_DATE_SK:
+    type: integer
+    primary_key: False
+    nullable: False
+    desc: foreign key reference to the DATE dimension for the start date of the promotion
+    pii: False
+    public: True
+
+  P_END_DATE_SK:
+    type: integer
+    primary_key: False
+    nullable: False
+    desc: foreign key reference to the DATE dimension for the end date of the promotion
+    pii: False
+    public: True
+
+  P_ITEM_SK:
+    type: integer
+    primary_key: False
+    nullable: False
+    desc:  the foreign key reference to the ITEM dimension for the the item that was promoted
+    pii: False
+    public: True
+
+  P_COST:
+    type: integer
+    primary_key: False
+    nullable: False
+    desc: the cost of the item during the promotion event
+    pii: False
+    public: True
